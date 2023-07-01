@@ -33,41 +33,29 @@
 	<h1>新規ユーザ追加</h1>
 	<c:if test="${ isAdmin }">
 		<form class="row_create" action="${mvc.basePath}/users" method="POST">
-			<span>ユーザ名</span> <span>ロール</span> <span>パスワード</span> <span></span> <input
-				type="text" name="name"> <input type="text" name="role">
+			<span>ユーザ名</span> <span>ロール</span> <span>パスワード</span> <span></span>
+			<input type="text" name="name">
+			<input type="text" name="role">
 			<input type="password" name="password">
 			<button>追加</button>
 		</form>
 	</c:if>
 	<hr>
 	<h1>ユーザ一覧</h1>
-	<div>
-		<div class="row">
-			<div>ユーザ名</div>
-			<div>ロール</div>
-			<c:if test="${ isAdmin }">
-				<div>パスワード</div>
-			</c:if>
-		</div>
-		<c:choose>
-			<c:when test="${ isAdmin }">
-				<c:forEach var="user" items="${usersModel}">
-					<form class="row" method="POST">
-						<input type="hidden" name="name" value="${user.name}"> <span>${user.name}</span>
-						<input type="text" name="role" value="${user.role}"> <input
-							type="text" name="password">
-						<button formaction="${mvc.basePath}/user_update">更新</button>
-						<button formaction="${mvc.basePath}/user_delete">削除</button>
-					</form>
-				</c:forEach>
-			</c:when>
-			<c:otherwise>
-				<c:forEach var="user" items="${usersModel}">
-					<div class="row">
-						<span>${user.name}</span> <span>${user.role}</span>
-					</div>
-				</c:forEach>
-			</c:otherwise>
-		</c:choose>
+	<div class="row">
+		<div>ユーザ名</div>
+		<div>ロール</div>
+		<div>パスワード</div>
+	</div>
+
+	<c:forEach var="user" items="${usersModel}">
+		<form class="row" method="POST">
+			<input type="hidden" name="name" value="${user.name}"> <span>${user.name}</span>
+			<input type="text" name="role" value="${user.role}">
+			<input type="text" name="password">
+			<button formaction="${mvc.basePath}/user_update">更新</button>
+			<button formaction="${mvc.basePath}/user_delete">削除</button>
+		</form>
+	</c:forEach>
 </body>
 </html>

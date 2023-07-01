@@ -10,9 +10,9 @@ import jakarta.security.enterprise.identitystore.DatabaseIdentityStoreDefinition
 	テーブル定義。password のサイズはハッシュ値が収まるサイズにすること。
 
 	create table users(
-		name VARCHAR(30) PRIMARY KEY,
-		role VARCHAR(30) NOT NULL,
-		password VARCHAR(256) NOT NULL
+  		name VARCHAR(30) PRIMARY KEY,
+  		role VARCHAR(30) NOT NULL,
+  		password VARCHAR(117) NOT NULL
 	);
 */
 
@@ -29,9 +29,9 @@ public class IdentityStoreConfig {
 	 * HASH_PARAMS は UserInitializeService でも用いる
 	 */
 	public static Map<String, String> HASH_PARAMS = Map.of(
-			"Pbkdf2PasswordHash.Iterations", "10000",
+			"Pbkdf2PasswordHash.Iterations", "210000",
 			"Pbkdf2PasswordHash.Algorithm", "PBKDF2WithHmacSHA512",
-			"Pbkdf2PasswordHash.SaltSizeBytes", "128");
+			"Pbkdf2PasswordHash.SaltSizeBytes", "32");
 
 	public String[] getHashAlgorithmParameters() {
 		return HASH_PARAMS.entrySet().stream()
