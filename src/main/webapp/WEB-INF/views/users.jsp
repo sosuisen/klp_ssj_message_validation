@@ -20,10 +20,9 @@
 </style>
 </head>
 <body>
-	[
-	<a href="${mvc.basePath}/">ホーム</a>] [
-	<a href="${mvc.basePath}/list">メッセージページ</a>] [
-	<a href="${mvc.basePath}/logout">ログアウト</a>]
+	[<a href="${mvc.basePath}/">ホーム</a>]
+	[<a href="${mvc.basePath}/list">メッセージページ</a>]
+	[<a href="${mvc.basePath}/logout">ログアウト</a>]
 	<hr>
 	<div style="color: red">
 		<c:forEach var="err" items="${errorBean}">
@@ -31,15 +30,13 @@
 		</c:forEach>
 	</div>
 	<h1>新規ユーザ追加</h1>
-	<c:if test="${ isAdmin }">
-		<form class="row_create" action="${mvc.basePath}/users" method="POST">
-			<span>ユーザ名</span> <span>ロール</span> <span>パスワード</span> <span></span>
-			<input type="text" name="name">
-			<input type="text" name="role">
-			<input type="password" name="password">
-			<button>追加</button>
-		</form>
-	</c:if>
+	<form class="row_create" action="${mvc.basePath}/users" method="POST">
+		<span>ユーザ名</span> <span>ロール</span> <span>パスワード</span> <span></span>
+		<input type="text" name="name">
+		<input type="text" name="role">
+		<input type="password" name="password">
+		<button>追加</button>
+	</form>
 	<hr>
 	<h1>ユーザ一覧</h1>
 	<div class="row">
