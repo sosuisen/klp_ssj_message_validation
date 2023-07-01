@@ -32,9 +32,9 @@
 	<h1>新規ユーザ追加</h1>
 	<form class="row_create" action="${mvc.basePath}/users" method="POST">
 		<span>ユーザ名</span> <span>ロール</span> <span>パスワード</span> <span></span>
-		<input type="text" name="name">
-		<input type="text" name="role">
-		<input type="password" name="password">
+		<input type="text" name="name" autocomplete="off">
+		<input type="text" name="role" autocomplete="off">
+		<input type="password" name="password" autocomplete="off">
 		<button>追加</button>
 	</form>
 	<hr>
@@ -48,8 +48,8 @@
 	<c:forEach var="user" items="${usersModel}">
 		<form class="row" method="POST">
 			<input type="hidden" name="name" value="${user.name}"> <span>${user.name}</span>
-			<input type="text" name="role" value="${user.role}">
-			<input type="text" name="password">
+			<input type="text" name="role" value="${user.role}" autocomplete="off">
+			<input type="text" name="password" autocomplete="off">
 			<button formaction="${mvc.basePath}/user_update">更新</button>
 			<button formaction="${mvc.basePath}/user_delete">削除</button>
 		</form>
