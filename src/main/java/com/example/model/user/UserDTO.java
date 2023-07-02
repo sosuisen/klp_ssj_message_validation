@@ -1,5 +1,8 @@
 package com.example.model.user;
 
+import com.example.model.validator.UniqueName;
+import com.example.model.validator.ValidRole;
+
 import jakarta.mvc.binding.MvcBinding;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
@@ -18,6 +21,7 @@ public class UserDTO {
 	// @NotBlank(message = "名前を入力してください。")
 	@NotBlank(message = "{user.name.NotBlank}")
 	@Size(min = 3, max = 30, message = "{user.name.Size}")
+	@UniqueName(message = "{user.name.UniqueName}")
 	@FormParam("name")
 	private String name;
 

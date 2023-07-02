@@ -1,4 +1,4 @@
-package com.example.model.user;
+package com.example.model.validator;
 
 import java.util.List;
 
