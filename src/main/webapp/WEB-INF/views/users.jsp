@@ -49,7 +49,7 @@
 		<form class="row" method="POST">
 			<input type="hidden" name="name" value="${user.name}"> <span>${user.name}</span>
 			<input type="text" name="role" value="${user.role}" autocomplete="off">
-			<input type="text" name="password" autocomplete="off">
+			<input type="password" name="password" autocomplete="off">
 			<button formaction="${mvc.basePath}/user_update">更新</button>
 			<button formaction="${mvc.basePath}/user_delete">削除</button>
 		</form>

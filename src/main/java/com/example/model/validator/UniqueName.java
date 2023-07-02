@@ -1,6 +1,7 @@
 package com.example.model.validator;
 
 import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
@@ -12,7 +13,7 @@ import jakarta.validation.Payload;
 
 @Documented
 @Constraint(validatedBy = UniqueNameValidator.class)
-@Target({ FIELD })
+@Target({ FIELD, PARAMETER })
 @Retention(RUNTIME)
 public @interface UniqueName {
     String message() default "The provided value is already in use. Please enter a unique value.";

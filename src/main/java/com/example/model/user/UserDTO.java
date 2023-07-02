@@ -17,6 +17,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class UserDTO {
+	// 他でも利用するためクラスフィールドで定義
+	public static final String PASSWORD_REGEX = "^[0-9a-zA-Z_\\-#\\^\\$%&@\\+\\*\\?]+$";
+	public static final int MIN_PASSWORD_LENGTH = 8;
+	public static final int MAX_PASSWORD_LENGTH = 16;
+	
+			
 	@MvcBinding
 	// @NotBlank(message = "名前を入力してください。")
 	@NotBlank(message = "{user.name.NotBlank}")
@@ -34,11 +40,14 @@ public class UserDTO {
 
 	@MvcBinding
 	@NotBlank(message = "{user.password.NotBlank}")
-	@Size(min = 8, max = 16, message = "{user.password.Size}")
-	@Pattern(regexp = "[0-9a-zA-Z_\\-#\\^\\$%&@\\+\\*\\?]+", message = "{user.password.Pattern}")
+	@Size(min = MIN_PASSWORD_LENGTH, max = MAX_PASSWORD_LENGTH, message = "{user.password.Size}")
+	@Pattern(regexp = PASSWORD_REGEX, message = "{user.password.Pattern}")
 	@FormParam("password")
 	private String password;
 
+	/**
+	 * 複数のフィールド間の相関関係は@AssertTrueでチェックできます。
+	 */
 	@MvcBinding
 	@AssertTrue(message = "{assert.NameMustNotIncludeAdminIfNotAdminRole}")
 	public boolean isNameMustNotIncludeAdminIfNotAdminRole() {
