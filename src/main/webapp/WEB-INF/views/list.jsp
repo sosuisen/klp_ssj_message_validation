@@ -23,6 +23,12 @@
 	<form action="${mvc.basePath}/clear" method="GET">
 		<button>Clear</button>
 	</form>
+	<div style="color: red">
+		<c:forEach var="err" items="${messageForm.error}">
+			${err}<br />
+		</c:forEach>
+	</div>
+		
 	<hr>
 	<h1>メッセージ一覧</h1>
 	<c:forEach var="mes" items="${messagesModel}">

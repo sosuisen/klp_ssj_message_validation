@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.model.message.MessageDTO;
+import com.example.model.message.MessageForm;
 import com.example.model.message.MessagesDAO;
 
 import jakarta.annotation.security.PermitAll;
@@ -9,8 +10,10 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
+import jakarta.mvc.binding.BindingResult;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
@@ -39,12 +42,17 @@ public class MessageController {
 	private final Models models;
 	private final MessagesDAO messagesDAO;
 	private final HttpServletRequest req;
-
+	private final BindingResult bindingResult;
+	private final MessageForm messageForm;
+	
 	@Inject
-	public MessageController(Models models, MessagesDAO messagesDAO, HttpServletRequest req) {
+	public MessageController(Models models, MessagesDAO messagesDAO,
+			HttpServletRequest req, BindingResult bindingResult, MessageForm messageForm) {
 		this.models = models;
 		this.messagesDAO = messagesDAO;
 		this.req = req;
+		this.bindingResult = bindingResult;
+		this.messageForm = messageForm;
 	}
 
 	/**
@@ -87,7 +95,12 @@ public class MessageController {
 
 	@POST
 	@Path("list")
-	public String postMessage(@BeanParam MessageDTO mes) {
+	public String postMessage(@Valid @BeanParam MessageDTO mes) {
+		if (bindingResult.isFailed()) {
+			messageForm.getError().addAll(bindingResult.getAllMessages());
+			return "redirect:list";
+		}
+
 		mes.setName(req.getRemoteUser());
 		messagesDAO.create(mes);
 		return "redirect:list";
