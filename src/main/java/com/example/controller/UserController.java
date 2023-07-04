@@ -8,7 +8,9 @@ import java.util.Properties;
 import com.example.auth.IdentityStoreConfig;
 import com.example.model.user.ErrorBean;
 import com.example.model.user.UserDTO;
+import com.example.model.user.UserForm;
 import com.example.model.user.UsersDAO;
+import com.example.model.user.UsersModel;
 import com.example.model.validator.CreateChecks;
 
 import jakarta.annotation.security.RolesAllowed;
@@ -33,8 +35,9 @@ import lombok.NoArgsConstructor;
 @RolesAllowed("ADMIN")
 @Path("/")
 public class UserController {
-
 	private final UsersDAO usersDAO;
+
+	private final UserForm userForm;
 
 	private final Pbkdf2PasswordHash passwordHash;
 
@@ -45,20 +48,25 @@ public class UserController {
 	private final ServletContext servletContext;
 
 	@Inject
-	public UserController(UsersDAO usersDAO, Pbkdf2PasswordHash passwordHash, BindingResult bindingResult,
+	public UserController(UsersDAO usersDAO, UserForm userForm, Pbkdf2PasswordHash passwordHash, BindingResult bindingResult,
 			ErrorBean errorBean, ServletContext servletContext) {
 		this.usersDAO = usersDAO;
+		this.userForm = userForm;
 		this.passwordHash = passwordHash;
 		passwordHash.initialize(IdentityStoreConfig.HASH_PARAMS);
 		this.bindingResult = bindingResult;
 		this.errorBean = errorBean;
 		this.servletContext = servletContext;
 	}
+	
+	@Inject UsersModel usersModel;
 
 	@GET
 	@Path("users")
 	public String getUsers() {
 		usersDAO.getAll();
+		var user = usersModel.get(0);
+		
 		return "users.jsp";
 	}
 
@@ -67,6 +75,7 @@ public class UserController {
 	public String createUser(@Valid @ConvertGroup(to = CreateChecks.class) @BeanParam UserDTO user) {
 		// CreateChecksグループでは、passwordのバリデーションも実行されます
 		if (bindingResult.isFailed()) {
+			userForm.setUser(user);
 			errorBean.addAll(bindingResult.getAllMessages());
 			return "redirect:users";
 		}
@@ -74,6 +83,7 @@ public class UserController {
 		var hash = passwordHash.generate(user.getPassword().toCharArray());
 		user.setPassword(hash);
 		usersDAO.create(user);
+		
 		return "redirect:users";
 	}
 
