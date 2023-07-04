@@ -1,5 +1,8 @@
 package com.example.model.message;
 
+import com.example.model.validator.ValidWord;
+
+import jakarta.mvc.binding.MvcBinding;
 import jakarta.ws.rs.FormParam;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,6 +39,9 @@ public class MessageDTO {
 	private int id;
 	@FormParam("name")
 	private String name;
+	
+	@MvcBinding
+	@ValidWord(message = "{message.ValidWord}")
 	@FormParam("message")
 	private String message;
 }

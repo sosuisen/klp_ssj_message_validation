@@ -1,8 +1,7 @@
 package com.example.model.validator;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -13,7 +12,7 @@ import jakarta.validation.Payload;
 
 @Documented
 @Constraint(validatedBy = RoleValidator.class)
-@Target({ FIELD, PARAMETER })
+@Target({ FIELD })
 @Retention(RUNTIME)
 public @interface ValidRole {
     String message() default "Invalid role";

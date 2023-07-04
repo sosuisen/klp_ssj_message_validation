@@ -11,11 +11,11 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 @Documented
-@Constraint(validatedBy = UniqueNameValidator.class)
+@Constraint(validatedBy = WordValidator.class)
 @Target({ FIELD })
 @Retention(RUNTIME)
-public @interface UniqueName {
-    String message() default "The provided value is already in use. Please enter a unique value.";
+public @interface ValidWord {
+    String message() default "Contains NG words";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
