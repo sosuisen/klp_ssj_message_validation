@@ -25,7 +25,7 @@
 	[<a href="${mvc.basePath}/logout">ログアウト</a>]
 	<hr>
 	<div style="color: green">
-		<c:forEach var="msg" items="${messageBean}">
+		<c:forEach var="msg" items="${userForm.message}">
 			<c:choose>
 				<c:when test="${msg == 'succeed_create'}">ユーザを作成しました。</c:when> 
 				<c:when test="${msg == 'succeed_update'}">ユーザを更新しました。</c:when> 
@@ -35,15 +35,15 @@
 		</c:forEach>
 	</div>
 	<div style="color: red">
-		<c:forEach var="err" items="${errorBean}">
+		<c:forEach var="err" items="${userForm.error}">
 			${err}<br />
 		</c:forEach>
 	</div>
 	<h1>新規ユーザ追加</h1>
 	<form class="row_create" action="${mvc.basePath}/users" method="POST">
 		<span>ユーザ名</span> <span>ロール</span> <span>パスワード</span> <span></span>
-		<input type="text" name="name" value="${prevUserForm.user.name}">
-		<input type="text" name="role"  value="${prevUserForm.user.role}">
+		<input type="text" name="name" value="${userForm.prevUser.name}">
+		<input type="text" name="role"  value="${userForm.prevUser.role}">
 		<input type="password" name="password" value="">
 		<button>追加</button>
 	</form>

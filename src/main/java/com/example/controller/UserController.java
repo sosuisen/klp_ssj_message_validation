@@ -6,12 +6,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import com.example.auth.IdentityStoreConfig;
-import com.example.model.user.ErrorBean;
-import com.example.model.user.MessageBean;
-import com.example.model.user.PrevUserForm;
 import com.example.model.user.UserDTO;
+import com.example.model.user.UserForm;
 import com.example.model.user.UsersDAO;
-import com.example.model.user.UsersModel;
 import com.example.model.validator.CreateChecks;
 
 import jakarta.annotation.security.RolesAllowed;
@@ -38,39 +35,29 @@ import lombok.NoArgsConstructor;
 public class UserController {
 	private final UsersDAO usersDAO;
 
-	private final PrevUserForm prevUserForm;
-
 	private final Pbkdf2PasswordHash passwordHash;
 
 	private final BindingResult bindingResult;
 
-	private final MessageBean messageBean;
+	private final UserForm userForm;
 	
-	private final ErrorBean errorBean;
-
 	private final ServletContext servletContext;
 
 	@Inject
-	public UserController(UsersDAO usersDAO, PrevUserForm prevUserForm, Pbkdf2PasswordHash passwordHash, BindingResult bindingResult,
-			MessageBean messageBean, ErrorBean errorBean, ServletContext servletContext) {
+	public UserController(UsersDAO usersDAO, Pbkdf2PasswordHash passwordHash, BindingResult bindingResult,
+			 UserForm userForm, ServletContext servletContext) {
 		this.usersDAO = usersDAO;
-		this.prevUserForm = prevUserForm;
 		this.passwordHash = passwordHash;
 		passwordHash.initialize(IdentityStoreConfig.HASH_PARAMS);
 		this.bindingResult = bindingResult;
-		this.messageBean = messageBean;
-		this.errorBean = errorBean;
+		this.userForm = userForm;
 		this.servletContext = servletContext;
 	}
 	
-	@Inject UsersModel usersModel;
-
 	@GET
 	@Path("users")
 	public String getUsers() {
 		usersDAO.getAll();
-		var user = usersModel.get(0);
-		
 		return "users.jsp";
 	}
 
@@ -79,8 +66,8 @@ public class UserController {
 	public String createUser(@Valid @ConvertGroup(to = CreateChecks.class) @BeanParam UserDTO user) {
 		// CreateChecksグループでは、passwordのバリデーションも実行されます
 		if (bindingResult.isFailed()) {
-			prevUserForm.setUser(user);
-			errorBean.addAll(bindingResult.getAllMessages());
+			userForm.setPrevUser(user);
+			userForm.getError().addAll(bindingResult.getAllMessages());
 			return "redirect:users";
 		}
 
@@ -88,7 +75,7 @@ public class UserController {
 		user.setPassword(hash);
 		usersDAO.create(user);
 		
-		messageBean.add("succeed_create");
+		userForm.getMessage().add("succeed_create");
 		
 		return "redirect:users";
 	}
@@ -97,7 +84,7 @@ public class UserController {
 	@Path("user_delete")
 	public String deleteUser(@FormParam("name") String name) {
 		usersDAO.delete(name);
-		messageBean.add("succeed_delete");
+		userForm.getMessage().add("succeed_delete");
 		return "redirect:users";
 	}
 
@@ -116,7 +103,7 @@ public class UserController {
 		 * 必ず失敗します。
 		 */
 		if (bindingResult.isFailed()) {
-			errorBean.addAll(bindingResult.getAllMessages());
+			userForm.getError().addAll(bindingResult.getAllMessages());
 			return "redirect:users";
 		}
 
@@ -136,12 +123,12 @@ public class UserController {
 		else {
 			var pattern = java.util.regex.Pattern.compile(UserDTO.PASSWORD_REGEX);
 			if (!pattern.matcher(user.getPassword()).matches()) {
-				errorBean.add(getValidationMessage("user.password.Pattern"));
+				userForm.getError().add(getValidationMessage("user.password.Pattern"));
 				return "redirect:users";
 			}
 			if (!(user.getPassword().length() >= UserDTO.MIN_PASSWORD_LENGTH
 					&& user.getPassword().length() <= UserDTO.MAX_PASSWORD_LENGTH)) {
-				errorBean.add(
+				userForm.getError().add(
 						getValidationMessage("user.password.Size")
 								.replace("{min}", String.valueOf(UserDTO.MIN_PASSWORD_LENGTH))
 								.replace("{max}", String.valueOf(UserDTO.MAX_PASSWORD_LENGTH)));
@@ -152,7 +139,7 @@ public class UserController {
 			user.setPassword(hash);
 			usersDAO.update(user);
 		}
-		messageBean.add("succeed_update");
+		userForm.getMessage().add("succeed_update");
 		
 		return "redirect:users";
 	}
