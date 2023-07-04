@@ -9,19 +9,17 @@ import com.example.auth.IdentityStoreConfig;
 import com.example.model.user.ErrorBean;
 import com.example.model.user.UserDTO;
 import com.example.model.user.UsersDAO;
-import com.example.model.validator.ValidRole;
+import com.example.model.validator.CreateChecks;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.MvcBinding;
 import jakarta.security.enterprise.identitystore.Pbkdf2PasswordHash;
 import jakarta.servlet.ServletContext;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.groups.ConvertGroup;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
@@ -46,7 +44,6 @@ public class UserController {
 
 	private final ServletContext servletContext;
 
-
 	@Inject
 	public UserController(UsersDAO usersDAO, Pbkdf2PasswordHash passwordHash, BindingResult bindingResult,
 			ErrorBean errorBean, ServletContext servletContext) {
@@ -67,7 +64,8 @@ public class UserController {
 
 	@POST
 	@Path("users")
-	public String createUser(@Valid @BeanParam UserDTO user) {
+	public String createUser(@Valid @ConvertGroup(to = CreateChecks.class) @BeanParam UserDTO user) {
+		// CreateChecksグループでは、passwordのバリデーションも実行されます
 		if (bindingResult.isFailed()) {
 			errorBean.addAll(bindingResult.getAllMessages());
 			return "redirect:users";
@@ -93,34 +91,39 @@ public class UserController {
 	 */
 	@POST
 	@Path("user_update")
-	public String updateUser(@MvcBinding @Valid 
-			@NotBlank(message = "{user.name.NotBlank}")
-			@Size(min = 3, max = 30, message = "{user.name.Size}")
-			@FormParam("name") String name,
-			@MvcBinding @Valid
-			@NotBlank(message = "{user.role.NotBlank}")
-			@ValidRole(message = "{user.role.ValidRole}")
-			@FormParam("role") String role,
-			@FormParam("password") String password) {
+	public String updateUser(@Valid @BeanParam UserDTO user) {
+		/**
+		 * CreateChecksグループ指定がない場合、
+		 * Bean Validationによるnameとpasswordのバリデーションは実行されません。
+		 * アップデートなので、仮にnameの@UniqueNameを実行したとすると
+		 * 必ず失敗します。
+		 */
 		if (bindingResult.isFailed()) {
 			errorBean.addAll(bindingResult.getAllMessages());
 			return "redirect:users";
 		}
 
 		/**
-		 * パスワードは空欄を許可し、空欄でない場合は長さとパターンをチェックします。
-		 * ビルトインのバリデータでこのチェックはできないため、
-		 * カスタムバリデータを作る必要がありますが、
-		 * 参考のためバリデータを作らずに直接コードで書いてみました。
+		 * 今回はパスワードの空欄を許可し、
+		 * 空欄でない場合は長さとパターンをチェックする仕様です。
+		 * これはビルトインのバリデータではチェックはできないため、
+		 * RoleValidator.java のようなカスタムバリデータを作る必要があります。
+		 * 
+		 * 下記では参考のためカスタムバリデータを作らずに直接コードで書いてみました。
+		 * 再利用性には欠けますが、直接書いてもたいした量でないという感覚は
+		 * 掴んでおいてください。
 		 */
-		if (!password.isEmpty()) {
+		if (user.getPassword().isEmpty()) {
+			usersDAO.update(user);
+		}
+		else {
 			var pattern = java.util.regex.Pattern.compile(UserDTO.PASSWORD_REGEX);
-			if (!pattern.matcher(password).matches()) {
+			if (!pattern.matcher(user.getPassword()).matches()) {
 				errorBean.add(getValidationMessage("user.password.Pattern"));
 				return "redirect:users";
 			}
-			if (!(password.length() >= UserDTO.MIN_PASSWORD_LENGTH
-					&& password.length() <= UserDTO.MAX_PASSWORD_LENGTH)) {
+			if (!(user.getPassword().length() >= UserDTO.MIN_PASSWORD_LENGTH
+					&& user.getPassword().length() <= UserDTO.MAX_PASSWORD_LENGTH)) {
 				errorBean.add(
 						getValidationMessage("user.password.Size")
 								.replace("{min}", String.valueOf(UserDTO.MIN_PASSWORD_LENGTH))
@@ -128,10 +131,9 @@ public class UserController {
 				return "redirect:users";
 			}
 
-			var hash = passwordHash.generate(password.toCharArray());
-			usersDAO.update(new UserDTO(name, role, hash));
-		} else {
-			usersDAO.update(new UserDTO(name, role, ""));
+			var hash = passwordHash.generate(user.getPassword().toCharArray());
+			user.setPassword(hash);
+			usersDAO.update(user);
 		}
 
 		return "redirect:users";

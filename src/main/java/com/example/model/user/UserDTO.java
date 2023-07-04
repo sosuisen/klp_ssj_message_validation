@@ -1,5 +1,6 @@
 package com.example.model.user;
 
+import com.example.model.validator.CreateChecks;
 import com.example.model.validator.UniqueName;
 import com.example.model.validator.ValidRole;
 
@@ -22,12 +23,11 @@ public class UserDTO {
 	public static final int MIN_PASSWORD_LENGTH = 8;
 	public static final int MAX_PASSWORD_LENGTH = 16;
 	
-			
 	@MvcBinding
-	// @NotBlank(message = "名前を入力してください。")
-	@NotBlank(message = "{user.name.NotBlank}")
-	@Size(min = 3, max = 30, message = "{user.name.Size}")
-	@UniqueName(message = "{user.name.UniqueName}")
+	// @NotBlank(message = "名前を入力してください。", groups = CreateChecks.class)
+	@NotBlank(message = "{user.name.NotBlank}", groups = CreateChecks.class)
+	@Size(min = 3, max = 30, message = "{user.name.Size}", groups = CreateChecks.class)
+	@UniqueName(message = "{user.name.UniqueName}", groups = CreateChecks.class)
 	@FormParam("name")
 	private String name;
 
@@ -39,9 +39,9 @@ public class UserDTO {
 	private String role;
 
 	@MvcBinding
-	@NotBlank(message = "{user.password.NotBlank}")
-	@Size(min = MIN_PASSWORD_LENGTH, max = MAX_PASSWORD_LENGTH, message = "{user.password.Size}")
-	@Pattern(regexp = PASSWORD_REGEX, message = "{user.password.Pattern}")
+	@NotBlank(message = "{user.password.NotBlank}", groups = CreateChecks.class)
+	@Size(min = MIN_PASSWORD_LENGTH, max = MAX_PASSWORD_LENGTH, message = "{user.password.Size}", groups = CreateChecks.class)
+	@Pattern(regexp = PASSWORD_REGEX, message = "{user.password.Pattern}", groups = CreateChecks.class)
 	@FormParam("password")
 	private String password;
 
