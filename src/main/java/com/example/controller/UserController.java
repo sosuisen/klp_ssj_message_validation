@@ -34,13 +34,9 @@ import lombok.NoArgsConstructor;
 @Path("/")
 public class UserController {
 	private final UsersDAO usersDAO;
-
 	private final Pbkdf2PasswordHash passwordHash;
-
 	private final BindingResult bindingResult;
-
 	private final UserForm userForm;
-	
 	private final ServletContext servletContext;
 
 	@Inject
