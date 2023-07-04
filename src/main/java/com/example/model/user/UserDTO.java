@@ -17,34 +17,22 @@ import lombok.NoArgsConstructor;
 /**
  * DAOにおけるデータの詰め替えや、
  * @BeanParam の注入先となるクラスです。
- * 
- * @BeanParam の注入先となるクラスには
- * スコープアノテーションを付けられないため、
- * スコープアノテーションはUserFormクラスのほうに追加しています。
- * 
- * サブクラスにはスーパークラスのスコープアノテーションは継承されないので
- * UserDTOをUserFormのサブクラスにする手もありますが、
- * クラスの役割分担が判りづらくなります。
  */
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class UserDTO extends UserBase {
-	// 他でも利用するためクラスフィールドで定義
+public class UserDTO {
+	// 今回は他でも利用するためクラスフィールドで定義
+	public static final int MIN_NAME_LENGTH = 3;
+	public static final int MAX_NAME_LENGTH = 30;
 	public static final String PASSWORD_REGEX = "^[0-9a-zA-Z_\\-#\\^\\$%&@\\+\\*\\?]+$";
 	public static final int MIN_PASSWORD_LENGTH = 8;
 	public static final int MAX_PASSWORD_LENGTH = 16;
-	
-	/*
-	 * name, role, passwordは、UserDTOで再宣言することにより、
-	 * UserBaseの同名フィールドを隠蔽します。
-	 * 
-	 * ここに@FormParamやバリデーションを追加してゆきます。
-	 */
+
 	@MvcBinding
 	// @NotBlank(message = "名前を入力してください。", groups = CreateChecks.class)
 	@NotBlank(message = "{user.name.NotBlank}", groups = CreateChecks.class)
-	@Size(min = 3, max = 30, message = "{user.name.Size}", groups = CreateChecks.class)
+	@Size(min = MIN_NAME_LENGTH, max = MAX_NAME_LENGTH, message = "{user.name.Size}", groups = CreateChecks.class)
 	@UniqueName(message = "{user.name.UniqueName}", groups = CreateChecks.class)
 	@FormParam("name")
 	private String name;

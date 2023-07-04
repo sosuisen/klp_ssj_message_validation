@@ -7,8 +7,9 @@ import java.util.Properties;
 
 import com.example.auth.IdentityStoreConfig;
 import com.example.model.user.ErrorBean;
+import com.example.model.user.MessageBean;
+import com.example.model.user.PrevUserForm;
 import com.example.model.user.UserDTO;
-import com.example.model.user.UserForm;
 import com.example.model.user.UsersDAO;
 import com.example.model.user.UsersModel;
 import com.example.model.validator.CreateChecks;
@@ -37,24 +38,27 @@ import lombok.NoArgsConstructor;
 public class UserController {
 	private final UsersDAO usersDAO;
 
-	private final UserForm userForm;
+	private final PrevUserForm prevUserForm;
 
 	private final Pbkdf2PasswordHash passwordHash;
 
 	private final BindingResult bindingResult;
 
+	private final MessageBean messageBean;
+	
 	private final ErrorBean errorBean;
 
 	private final ServletContext servletContext;
 
 	@Inject
-	public UserController(UsersDAO usersDAO, UserForm userForm, Pbkdf2PasswordHash passwordHash, BindingResult bindingResult,
-			ErrorBean errorBean, ServletContext servletContext) {
+	public UserController(UsersDAO usersDAO, PrevUserForm prevUserForm, Pbkdf2PasswordHash passwordHash, BindingResult bindingResult,
+			MessageBean messageBean, ErrorBean errorBean, ServletContext servletContext) {
 		this.usersDAO = usersDAO;
-		this.userForm = userForm;
+		this.prevUserForm = prevUserForm;
 		this.passwordHash = passwordHash;
 		passwordHash.initialize(IdentityStoreConfig.HASH_PARAMS);
 		this.bindingResult = bindingResult;
+		this.messageBean = messageBean;
 		this.errorBean = errorBean;
 		this.servletContext = servletContext;
 	}
@@ -75,7 +79,7 @@ public class UserController {
 	public String createUser(@Valid @ConvertGroup(to = CreateChecks.class) @BeanParam UserDTO user) {
 		// CreateChecksグループでは、passwordのバリデーションも実行されます
 		if (bindingResult.isFailed()) {
-			userForm.setUser(user);
+			prevUserForm.setUser(user);
 			errorBean.addAll(bindingResult.getAllMessages());
 			return "redirect:users";
 		}
@@ -84,6 +88,8 @@ public class UserController {
 		user.setPassword(hash);
 		usersDAO.create(user);
 		
+		messageBean.add("succeed_create");
+		
 		return "redirect:users";
 	}
 
@@ -91,6 +97,7 @@ public class UserController {
 	@Path("user_delete")
 	public String deleteUser(@FormParam("name") String name) {
 		usersDAO.delete(name);
+		messageBean.add("succeed_delete");
 		return "redirect:users";
 	}
 
@@ -145,7 +152,8 @@ public class UserController {
 			user.setPassword(hash);
 			usersDAO.update(user);
 		}
-
+		messageBean.add("succeed_update");
+		
 		return "redirect:users";
 	}
 
