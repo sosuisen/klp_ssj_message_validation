@@ -1,10 +1,8 @@
 package com.example.model.validator;
 
-import jakarta.enterprise.context.RequestScoped;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-@RequestScoped
 public class WordValidator implements ConstraintValidator<ValidWord, String> {
 	String[] ngWord = { "りんご", "バナナ", "すいか" };
 
