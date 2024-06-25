@@ -20,6 +20,11 @@
 		検索語：<input type="text" name="keyword">
 		<button>検索</button>
 	</form>
+	<div style="color: red">
+		<c:forEach var="err" items="${messageForm.error}">
+            ${err}
+        </c:forEach>
+	</div>
 	<form action="${mvc.basePath}/clear" method="GET">
 		<button>Clear</button>
 	</form>

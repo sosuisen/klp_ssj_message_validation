@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 
 import com.example.model.message.MessageDTO;
+import com.example.model.message.MessageForm;
 import com.example.model.message.MessagesDAO;
 
 import jakarta.annotation.PostConstruct;
@@ -13,8 +14,10 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
+import jakarta.mvc.binding.BindingResult;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
@@ -48,6 +51,8 @@ public class MessageController {
 	private final Models models;
 	private final MessagesDAO messagesDAO;
 	private final HttpServletRequest req;
+	private final BindingResult bindingResult;
+	private final MessageForm messageForm;
 	
 	@PostConstruct
 	public void afterInit() {
@@ -98,7 +103,11 @@ public class MessageController {
 
 	@POST
 	@Path("list")
-	public String postMessage(@BeanParam MessageDTO mes) throws SQLException {
+	public String postMessage(@Valid @BeanParam MessageDTO mes) throws SQLException {
+		if (bindingResult.isFailed()) {
+			messageForm.getError().addAll(bindingResult.getAllMessages());
+			return "redirect:list";
+		}
 		mes.setName(req.getRemoteUser());
 		messagesDAO.create(mes);
 		return "redirect:list";
