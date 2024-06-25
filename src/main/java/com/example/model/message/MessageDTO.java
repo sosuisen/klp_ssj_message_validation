@@ -1,5 +1,7 @@
 package com.example.model.message;
 
+import com.example.model.validator.ValidWord;
+
 import jakarta.mvc.binding.MvcBinding;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -32,6 +34,7 @@ public class MessageDTO {
 	private String name;
 
 	@MvcBinding
+	@ValidWord(message = "{message.ValidWord}")
 	@NotBlank(message = "{message.NotBlank}")
 	@Size(max = 140, message = "{message.Size}")
 	@FormParam("message")
